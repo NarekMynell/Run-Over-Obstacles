@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d492aa5089bca140a431489fe6ae2b9, type: 3}
+  m_Name: RoadData
+  m_EditorClassIdentifier: 
+  _pathMesh: {fileID: -7177582377190089013, guid: 439a6c9966a8fe64cbc8235d1f568140,
+    type: 3}
+  _meshRowsCount: 3
+  _pathFirsVerticeIndex: 0
