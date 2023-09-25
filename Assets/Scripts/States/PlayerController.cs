@@ -1,15 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Animator), typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
-    public PlayerData playerData;
+    [SerializeField] private PlayerData _playerData;
     public Animator animator;
     public CharacterController characterController;
     public RoadSharedData CurrentRoadData { get; private set; }
     private StateMachine _stateMachine;
+
+    public PlayerData PlayerData => _playerData;
 
     private void Awake()
     {
@@ -52,6 +52,30 @@ public class PlayerController : MonoBehaviour
     {
         SetRoad(roadSharedData);
         StartRun();
+    }
+
+    public void OnJumpReadyLeftFoot()
+    {
+        if(_stateMachine.CurrentState.GetType() == typeof(PlayerRun))
+        {
+            (_stateMachine.CurrentState as PlayerRun).OnJumpReady(true);
+        }
+    }
+
+    public void OnJumpReadyRightFoot()
+    {
+        if (_stateMachine.CurrentState.GetType() == typeof(PlayerRun))
+        {
+            (_stateMachine.CurrentState as PlayerRun).OnJumpReady(false);
+        }
+    }
+
+    public void OnJumpEnd()
+    {
+        if (_stateMachine.CurrentState.GetType() == typeof(PlayerRun))
+        {
+            (_stateMachine.CurrentState as PlayerRun).OnJumpEnd();
+        }
     }
     #endregion
 }

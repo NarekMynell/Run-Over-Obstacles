@@ -12,5 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af932b05a46fbbb4a858ab222145b813, type: 3}
   m_Name: PlayerData
   m_EditorClassIdentifier: 
-  _movingSpeed: 5.5
+  _runSpeed: 3.5
   _rotationSpeed: 5
+  _runClipDuration: 0.533
+  _footMaxGapTimePosInJumpAnim: 0.2
