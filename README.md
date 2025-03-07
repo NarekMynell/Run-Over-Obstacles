@@ -4,27 +4,27 @@
 * **Mode:** 3D
 
 ## Description
-Խաղում կա ճանապարհ, որի վրա առկա են որոշակի պատնեշներ։ ```Player```-ը վազում է այդ ճանապարհով և թռչում արգելքների վրայով, այնպես, որ արգելքի վրա գտնվելու պահին ոտքերը միշտ ունենում են նույն բացվածքը։  
-Խաղում առկա է ```slider``````, որի միջոցով հնարավոր է փոփոխել ժամանակի արգությունը, որպեսզի ավելի տեսանելի լինի ցատկը։
-Պատնեշները հնարավոր է runtime տեղաշարժել (Unity-ի Editor-ում) ճանապարհի երկայնքով և դրանից խաղի մեխանիկան չի փչանա և player-ը ցանկացած ժամանակ կգտնի դրանց դիրքը և կկատարի ճշգրիտ ցատկ։ Սակայն դրանք չպետք է գտնվեն մեկմեկու այնքան մոտ, որ հնարավոր չլինի ցատկ անել։
+The game features a road with certain obstacles placed on it. The ```Player``` runs along this road and jumps over the obstacles in such a way that, at the moment of being above the obstacle, the legs always maintain the same spread.  
+The game includes a ```slider``` that allows adjusting the time scale to make the jump more visible.  
+Obstacles can be moved along the road during runtime (in Unity's Editor), and this does not break the game mechanics—the player will always detect their position and perform an accurate jump. However, the obstacles should not be placed so close to each other that jumping over them becomes impossible.
 
 ## Architecture
-Ճանապարհն իրենից ներկայացնում է ```Mesh```:  
-Խաղացողի վազքի ուղեծիրը որոշվում է նույնպես ```Mesh```-ով, որն իրենից ներկայացնում է միաշարք կետերի ցանկ և որպես պարամետր տրվում է Ճանապարհին (```Road```-ի ```RoadData```-ում) այնուհետև ```Road``` script-ում ստեղծվում է վեկտորների զանգված, կազմված ուղեծրի աշխարհիկ կոորդինատներից, և այն որպես պարամետր տրվում է ```Road```-ի ```SharedData```-ին, որում պահվում են նաև պատնեշների տվյալները։
+The road is represented as a ```Mesh```.  
+The player's running path is determined by another ```Mesh```, which consists of a list of sequential points and is passed as a parameter to the ```Road``` (in ```RoadData```). Then, in the ```Road``` script, an array of vectors is created from the path’s world coordinates and passed as a parameter to ```Road```’s ```SharedData```, which also stores the obstacle data.
 ~~~C#
 RoadSharedData
     Vector3[] Path;
     ObstacleSharedData[] Obstacles;
 ~~~
-Ճանապարհի և խաղացողի միջև հաղորդակցությունն ապահովվում է ```RunManager```-ի միջոցով։ Այն ունենալով ```Road```-ը որպես պարամետր՝ event է ուղարկում ճանապարհի թարմացման մասին՝ ուղարկելով ընթացիք ```Road```-ի ```SharedData```-ն։ Այդ event-ն ընդունում է ```PlayerController```-ը, պահպանում ```Road```-ի ```SharedData```-ն և մեկնարկում վազքը՝ ստեղծելով և անցնելով ```PlayerRun``` վիճակին։
+Communication between the road and the player is managed through the ```RunManager```. With ```Road``` as a parameter, it sends an event about the road’s update, including the current ```Road```’s ```SharedData```. This event is received by the ```PlayerController```, which stores the ```Road```’s ```SharedData``` and starts the run by creating and transitioning to the ```PlayerRun``` state.
 
 #### Run
-Շարժումը կատարվում է ուղեծրի գծերի երկայնքով՝ գիծ-առ-գիծ։ Կոդը կատարում է ճշգրիտ հաշվարկներ առանց մոտարկումների (Մոտարկում հանդիսանում է ```float```-ի ճշգրտությունը), որը ենթադրում է, որ խաղացողը անցնելու է բոլոր գծերի և գագաթների վրայով առանց շեղվելու և արագությունը փոփոխելու։
-```PlayerRun```-ում ամեն պահի որոշվում է առաջիկա պատնեշի հեռավորությունը խաղացողից շարժման ուղեծրի երկայնքով։  
-Խաղացողին տրված ```Animator```-ն ունի վազգի և թռիչքի վիճակներ։ Վազքի ```AnimationClip```-ին տրված են երկու event-ներ՝ ձախ և աջ ոտքերի համար թռիչքին պատրաստ պահերին։ Այդ event-ները կանչվելիս կոդում ստուգվում է, թե արդյոք դա վերջին նմանատիպ դիրքն է մինչև առաջիկա պատնեշը, եթե այո, ապա կատարվում է ցատկ (աջ կամ ձախ ոտքից)՝ միաժամանակ փոփոխվում է անիմացիայի արագությունը, որպեսզի պատնեշի վրա գտնվելու պահին ոտքերն ունենան ֆիքսված բացվածքը։ Ցատկից հետո անիմացիան կրկին ստանում է իր սովորական արագությունը։
+Movement occurs along the path’s lines, segment by segment. The code performs precise calculations without approximations (the only approximation being the precision of ```float```), assuming the player passes over all lines and vertices without deviation or speed changes.  
+In ```PlayerRun```, the distance to the nearest obstacle along the movement path is calculated at every moment.  
+The player’s ```Animator``` has states for running and jumping. The running ```AnimationClip``` includes two events—for the left and right legs—at moments when they are ready to jump. When these events are triggered, the code checks if this is the last such position before the upcoming obstacle. If so, a jump is performed (from either the right or left leg), and the animation speed is adjusted simultaneously to ensure the legs have a fixed spread at the moment of being above the obstacle. After the jump, the animation returns to its normal speed.
 
 ## Getting Started
-Նախագիծն օգտագործու համար անհրաժեշտ է իրագործել հետևյալ եղանակներից մեկը  
-* Կլոնավորել այն և Unity Hub-ի միջոցով բացել այդ պանակն ինչպես նոր նախագիծ
-* **Releases** բաժնից ներբեռնել ```Jumper.unitypackage``` package-ն և այն import անել արդեն գոյություն ունեցող նախագծում
-Releases բաժնում առկա է նաև apk ֆայլը։
+To use the project, follow one of these methods:  
+* Clone it and open the folder as a new project via Unity Hub.  
+* Download the ```Jumper.unitypackage``` package from the **Releases** section and import it into an existing project.  
+The **Releases** section also includes an APK file.

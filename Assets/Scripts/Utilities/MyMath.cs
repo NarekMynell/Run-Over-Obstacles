@@ -10,5 +10,4 @@ public static class MyMath
 
         return deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ;
     }
-
 }
